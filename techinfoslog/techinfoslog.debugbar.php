@@ -18,7 +18,29 @@ class techinfoslogDebugbarPlugin implements jIDebugbarPlugin {
      * @return string CSS styles
      */
     function getCss() {
-        return 'div.techinfoslog_phpinfoItem{ max-width: 600px; }';
+        return 'div.techinfoslog_phpinfoItem{ max-width: 600px; }
+            .jxdb-list h6 {
+                background-color: #FFF9C2;
+                display: block;
+                font-size: 11pt;
+                font-weight: normal;
+                margin: 0;
+                padding: 0;
+            }
+            .jxdb-list h6 a {
+                background-position: left center;
+                background-repeat: no-repeat;
+                color: black;
+                display: inline-block;
+                padding: 0 0 0 18px;
+                text-decoration: none;
+            }
+            ul.jxdb-list li h6 a {
+                background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABjSURBVCjPY/jPgB8y0FHBkb37/+/6v+X/+v8r/y/ei0XB3v+H4HDWfywKtgAl1v7/D8SH/k/ApmANUAICDv1vx6ZgMZIJ9dgUzEJyQxk2BRPWdf1vAeqt/F/yP3/dwIQk2QoAfUogHsamBmcAAAAASUVORK5CYII=");
+            }
+            ul.jxdb-list li.jxdb-opened h6 a {
+                background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABhSURBVCjPY/jPgB8y0FHBkb37/+/6v+X/+v8r/y/ei0XB3v+H4HDWfywKtgAl1oLhof8TsClYA5SAgEP/27EpWIxkQj02BbOQ3FCGTcGEdV3/W4B6K/+X/M9fNzAhSbYCAMiTH3pTNa+FAAAAAElFTkSuQmCC");
+            }';
     }
 
     /**
@@ -38,6 +60,8 @@ class techinfoslogDebugbarPlugin implements jIDebugbarPlugin {
         $info->htmlLabel = '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAItSURBVDjLfVM7bBNBEH27d7alOKfYjsM3gFLjRCAgiAoFBAIhQUNJh0SLqGgpEQW2a6LQ8VGgAAqUBqWk4bAbDEgoNCALJNtJlKDzfZaZ2bNFUJI9zc7d7c57b3ZmlTEGuw3f9x9HUXQjDEOXPMiL9ft99s/UTgDNZnOMAuYLhcL1XG4EAQUhSSC7KaZYLGBp6S3c7YIbjcYlDi6Xywfz+TxWvv8AsyeJQWISAjKICSwIAritViuI4zhLJpsGMtl3u93/JaPT6RJQggsXL8s/l4MnJw+j11sVdsOPYZVGjD+IE6XiGN68foWjlePCzmuigFE5+O68T9sUlKLZTuLZ1tfW8ODWKWH86L8Hq91/5ZpVwFKZlTcWS+PQWkOR6dT4nQFMYhkrMyfl3aRnoFkBfROAhuM4W0ynngcfHjP+9law0KtJWqIgTMujtILjukN28ZwCeVs5y7jw5RE21iNRIQA88YFwCsw4tWdE8rdD4edqlCqwjHfG7yEpWUAmFwCd5sn27ev2HeloRwBsL9hKDRVkMi7u3zwm5QnDCJubgTBksxlKw0j3aWXXYo5MyygKKK+Hy8vvzg4ahXzJ87wprk673Q5IXY5T47jK9AyOHDogivbtnZBm23IX6vX6bQK5Onv6zDnPK+Dli6d/qOZP6Hxm6f/0v13KRmufhwC1Wm2CSvZrbu48Rj2PNsRwHU2g1Y1qtTq6020dXiaS3iH7sLj4/MSg/1PGT7td97+G8aA4FJOt1wAAAABJRU5ErkJggg==" alt="SQL queries" title="SQL queries"/> ';
 
         $info->popupContent .= '<ul id="jxdb-techinfoslog" class="jxdb-list">';
+
+        //memory infos
         $memPeak = memory_get_peak_usage();
         $memPeakHuman = $this->size_readable( $memPeak );
         $info->popupContent .= "<li>Memory peak : $memPeakHuman ($memPeak o)</li>";
@@ -45,6 +69,8 @@ class techinfoslogDebugbarPlugin implements jIDebugbarPlugin {
         $memLimit = get_cfg_var('memory_limit');
         $info->popupContent .= "<li>Memory limit : $memLimit</li>";
         
+
+        //phpinfo() stuff
         $phpInfoVals = array(
                         INFO_GENERAL => 'phpinfo() general',
                         INFO_CONFIGURATION => 'phpinfo() configuration',
@@ -80,6 +106,26 @@ class techinfoslogDebugbarPlugin implements jIDebugbarPlugin {
                     <p>'.$phpInfoString.'</p>
                 </div></li>';
         }
+
+
+        //Jelix config
+        global $gJConfig;
+        $jelixConf = '<li><h5><a href="#" onclick="jxdb.toggleDetails(this);return false;"><span>Jelix gJConfig</span></a></h5><div><ul>';
+        foreach( $gJConfig as $configKey => $configVal ) {
+            if( is_array($configVal) ) {
+                $jelixConf .= '<li><h6><a href="#" onclick="jxdb.toggleDetails(this);return false;"><span>' . $configKey . '&nbsp;: </span></a></h6><div><ul>';
+                foreach( $configVal as $configValKey=>$configSubVal ) {
+                    $jelixConf .= "<li>$configValKey&nbsp;: $configSubVal</li>";
+                }
+                $jelixConf .= '</ul></div>';
+            } else {
+                $jelixConf .= "<li>$configKey&nbsp;: " . $configVal;
+            }
+            $jelixConf .= "</li>";
+        }
+        $jelixConf .= '</div></ul></li>';
+
+        $info->popupContent .= $jelixConf;
 
         $info->popupContent .= '</ul>';
 
