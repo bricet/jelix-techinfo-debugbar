@@ -16,6 +16,7 @@ Add "techinfoslog" to your "plugins" entry in the "debugbar" section of your con
 
 Note that you should have your app plugin directory in your modulesPath (defaultconfig.ini.php or entry point's config.ini.php) to get it working.
 The value should be at least :
+
     modulesPath="app:modules/"
 
 
